@@ -3,53 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>我的個人網站</title>
+    <title>今天吃什麼？輪盤決定！</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+    <style>
+      #wheel {
+        width: 300px;
+        height: 300px;
+        border: 10px solid #ccc;
+        border-radius: 50%;
+        margin: 2rem auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        text-align: center;
+        background: conic-gradient(#f78ca0 0% 14.28%, #fbc7d4 14.28% 28.56%, #fceabb 28.56% 42.84%, #e0c3fc 42.84% 57.12%, #a1c4fd 57.12% 71.4%, #c2e9fb 71.4% 85.68%, #d4fc79 85.68% 100%);
+        transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      }
+      #pointer {
+        position: absolute;
+        top: 160px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 2rem;
+        color: red;
+      }
+    </style>
   </head>
   <body>
-    <!-- 導覽列 -->
     <nav class="container-fluid">
-      <ul>
-        <li><strong>我的網站</strong></li>
-      </ul>
+      <ul><li><strong>吃什麼輪盤</strong></li></ul>
       <ul>
         <li><a href="#">首頁</a></li>
-        <li><a href="#">關於我</a></li>
-        <li><a href="#" role="button">聯絡我</a></li>
+        <li><a href="#" role="button">開始轉</a></li>
       </ul>
     </nav>
 
-    <!-- 主要內容 -->
     <main class="container">
       <div class="grid">
         <section>
           <hgroup>
-            <h2>歡迎來到我的網站</h2>
-            <h3>這是一個簡單又優雅的網站範例</h3>
+            <h2>不知道今天要吃什麼？</h2>
+            <h3>點一下幫你決定！</h3>
           </hgroup>
-          <p>這個網站使用了 Pico CSS 架構，讓你的頁面看起來簡潔又現代，非常適合展示個人作品、履歷或部落格。</p>
 
-          <figure>
-            <img src="https://source.unsplash.com/featured/800x500?landscape" alt="美麗風景圖" />
-            <figcaption><a href="https://unsplash.com" target="_blank">圖片來源：Unsplash</a></figcaption>
-          </figure>
+          <div id="pointer">▼</div>
+          <div id="wheel">點我轉</div>
 
-          <h3>網站特色</h3>
-          <p>支援響應式設計，在電腦與手機上都能完美顯示。</p>
+          <h3 id="result">👉 等待轉盤結果...</h3>
+          <p><a id="mapLink" href="#" target="_blank">🔍 在 Google 地圖搜尋</a></p>
 
-          <h3>輕鬆上手</h3>
-          <p>只要把這份檔案上傳到 GitHub，開啟 GitHub Pages 就完成了！</p>
+          <h3>自訂你的餐點選項：</h3>
+          <form id="customForm">
+            <textarea id="customChoices" rows="4" placeholder="輸入選項，以逗號分隔，如：拉麵,壽司,炸雞" required></textarea>
+            <button type="submit">更新選項</button>
+          </form>
         </section>
       </div>
     </main>
 
-    <!-- 訂閱表單區塊 -->
     <section aria-label="Subscribe example">
       <div class="container">
         <article>
           <hgroup>
-            <h2>訂閱最新消息</h2>
-            <h3>輸入姓名與信箱，加入我的聯絡名單</h3>
+            <h2>想收到更多有趣功能？</h2>
+            <h3>輸入信箱訂閱更新</h3>
           </hgroup>
           <form class="grid">
             <input type="text" id="firstname" name="firstname" placeholder="你的名字" aria-label="名字" required />
@@ -60,12 +78,52 @@
       </div>
     </section>
 
-    <!-- 頁腳 -->
     <footer class="container">
-      <small>
-        <a href="#">版權所有 © 2025</a> •
-        <a href="#">隱私權政策</a>
-      </small>
+      <small><a href="#">版權所有 © 2025</a> • <a href="#">關於作者</a></small>
     </footer>
+
+    <script>
+      let choices = ['拉麵', '義大利麵', '便當', '牛排', '火鍋', '水餃', '滷味'];
+      const wheel = document.getElementById('wheel');
+      const result = document.getElementById('result');
+      const mapLink = document.getElementById('mapLink');
+      const form = document.getElementById('customForm');
+
+      let spinning = false;
+
+      wheel.addEventListener('click', () => {
+        if (spinning) return;
+        spinning = true;
+
+        const randomIndex = Math.floor(Math.random() * choices.length);
+        const currentRotation = wheel.style.transform ? 
+          parseFloat(wheel.style.transform.replace(/[^\d.]/g, '')) || 0 : 0;
+        const extraSpins = 360 * 5; // 額外旋轉5圈
+        const targetAngle = (360 / choices.length) * randomIndex;
+        const totalAngle = currentRotation + extraSpins + targetAngle;
+
+        wheel.style.transform = `rotate(${totalAngle}deg)`;
+
+        setTimeout(() => {
+          const selected = choices[randomIndex];
+          result.textContent = `🎉 今天吃：${selected}`;
+          mapLink.href = `https://www.google.com/maps/search/${encodeURIComponent(selected)}`;
+          mapLink.textContent = `🔍 搜尋附近的 ${selected}`;
+          spinning = false;
+        }, 4000);
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('customChoices').value;
+        const newChoices = input.split(',').map(item => item.trim()).filter(item => item);
+        if (newChoices.length > 0) {
+          choices = newChoices;
+          alert('已更新選項！');
+        } else {
+          alert('請輸入至少一個選項');
+        }
+      });
+    </script>
   </body>
 </html>
