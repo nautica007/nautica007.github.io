@@ -1,190 +1,242 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>今天吃什麼？輪盤決定！</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
-    <style>
-      .wheel-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        margin: 2rem auto;
-        max-width: 100%;
-      }
 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>今天吃什麼？輪盤決定！</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #2d3436;
+    }
+
+    .container {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+      background: linear-gradient(45deg, #6c5ce7, #a363d9);
+      border: none;
+      box-shadow: 0 4px 15px rgba(108, 92, 231, 0.2);
+      transition: transform 0.2s;
+      color: white;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+    }
+
+    .wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 2rem auto;
+      max-width: 100%;
+    }
+
+    #wheel {
+      width: min(80vw, 400px);
+      height: min(80vw, 400px);
+      border: 8px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      background: none;
+      cursor: pointer;
+    }
+
+    #wheel:hover {
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+    }
+
+    #pointer {
+      position: absolute;
+      top: -2.3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2rem;
+      color: red;
+    }
+
+    #legend {
+      position: absolute;
+      right: 0rem;
+      bottom: -3rem;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 0.8rem 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      font-size: 0.95rem;
+      max-width: 250px;
+    }
+
+    #legend span {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      margin-right: 0.4rem;
+      border-radius: 3px;
+    }
+
+    #legend h4 {
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
       #wheel {
-        width: clamp(500px, 40vw, 300px);
-        height: clamp(500px, 40vw, 300px);
-        border: 8px solid #ccc;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        text-align: center;
-
-        transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
-        background: none;
-      }
-
-      #pointer {
-        position: absolute;
-        top: -2.3rem;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 2rem;
-        color: red;
+        font-size: 1rem;
+        width: min(90vw, 300px);
+        height: min(90vw, 300px);
       }
 
       #legend {
-        position: absolute;
-        right: 0rem;
-        bottom: -3rem;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.1rem 0.5rem;
-        border-radius: 1.75rem;
-        box-shadow: 0 0 10px rgba(0,0,0,0.15);
-        font-size: 0.95rem;
-        max-width: 250px;
-        }
-
-      #legend span {
-        display: inline-block;
-        width: 1rem;
-        height: 1rem;
-        margin-right: 0.5rem;
-        border-radius: 3px;
-        }
-      #legend h4 {
-        margin-bottom: 0.8rem; 
-        }
-
-
-      @media (max-width: 480px) {
-        #wheel {
-          font-size: 1rem;
-        }
-
-        #legend h4 {
-          font-size: 1rem;
-        }
+        position: static;
+        margin-top: 1.5rem;
+        width: 100%;
+        max-width: none;
       }
-    </style>
-  </head>
-  <body>
-    <nav class="container-fluid">
-      <ul><li><strong>吃什麼輪盤</strong></li></ul>
-    </nav>
 
-    <main class="container">
-      <div class="grid">
-        <section>
-          <hgroup>
-            <h1>今天要吃什麼勒？</h1>
-            <h3>點一下幫你決定！</h3>
-          </hgroup>
+      .container {
+        padding: 1rem;
+      }
 
-          <!-- 包住轉盤 + 指針 -->
-          <div class="wheel-container">
-            <div id="pointer">▼</div>
-            <div id="wheel">點我轉</div>
-            <div id="legend"></div>
-          </div>
+      .wheel-container {
+        margin: 1rem auto;
+      }
+    }
+  </style>
+</head>
 
-          <h3 id="result">👉 等待轉盤結果...</h3>
-          <p><a id="mapLink" href="#" target="_blank">🔍 在 Google 地圖搜尋</a></p>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><strong>🎡 吃什麼輪盤</strong></li>
+    </ul>
+  </nav>
 
-          <h3>自訂你的餐點選項：</h3>
-          <form id="customForm">
-            <textarea id="customChoices" rows="4" placeholder="輸入選項，以逗號分隔，如：拉麵,壽司,炸雞" required></textarea>
-            <button type="submit">更新選項</button>
-          </form>
+  <main class="container">
+    <div class="grid">
+      <section>
+        <hgroup>
+          <h1>今天要吃什麼勒？</h1>
+          <h3>點一下幫你決定！</h3>
+        </hgroup>
 
-        </section>
-      </div>
-    </main>
+        <div class="wheel-container">
+          <div id="pointer">▼</div>
+          <div id="wheel">點我轉</div>
+          <div id="legend"></div>
+        </div>
 
-    <script>
-      let choices = ['拉麵', '義大利麵', '便當', '牛排', '火鍋', '水餃', '滷味'];
-      const colorPalette = [
-        '#f78ca0', '#fbc7d4', '#fceabb', '#e0c3fc', '#a1c4fd',
-        '#c2e9fb', '#d4fc79', '#ffb347', '#ff6961', '#87e0fd',
-        '#b0f2b4', '#d5aae5', '#f9f871', '#ffd3b6', '#d0e1f9'
-      ];
+        <h3 id="result">👉 等待轉盤結果...</h3>
+        <p><a id="mapLink" href="#" target="_blank">🔍 在 Google 地圖搜尋</a></p>
 
-      const wheel = document.getElementById('wheel');
-      const result = document.getElementById('result');
-      const mapLink = document.getElementById('mapLink');
-      const form = document.getElementById('customForm');
+        <h3>自訂你的餐點選項：</h3>
+        <form id="customForm">
+          <textarea id="customChoices" rows="4" placeholder="輸入選項，以逗號分隔，如：拉麵,壽司,炸雞" required></textarea>
+          <button type="submit">更新選項</button>
+        </form>
+      </section>
+    </div>
+  </main>
 
-      let spinning = false;
-      
-      const renderWheel = () => {
-        const anglePer = 360 / choices.length;
-        const gradient = choices.map((_, i) => {
+  <script>
+    let choices = ['拉麵', '義大利麵', '便當', '牛排', '火鍋', '水餃', '滷味'];
+    const colorPalette = [
+      '#f78ca0', '#fbc7d4', '#fceabb', '#e0c3fc', '#a1c4fd',
+      '#c2e9fb', '#d4fc79', '#ffb347', '#ff6961', '#87e0fd',
+      '#b0f2b4', '#d5aae5', '#f9f871', '#ffd3b6', '#d0e1f9'
+    ];
+
+    const wheel = document.getElementById('wheel');
+    const result = document.getElementById('result');
+    const mapLink = document.getElementById('mapLink');
+    const form = document.getElementById('customForm');
+    let spinning = false;
+
+    const renderWheel = () => {
+      const anglePer = 360 / choices.length;
+      const gradient = choices.map((_, i) => {
+        const color = colorPalette[i % colorPalette.length];
+        const start = i * anglePer;
+        const end = start + anglePer;
+        return `${color} ${start}deg ${end}deg`;
+      }).join(', ');
+      wheel.style.background = `conic-gradient(${gradient})`;
+    };
+
+    const renderLegend = () => {
+      const legend = document.getElementById('legend');
+      legend.innerHTML = '<h4>🎨 顏色對應表：</h4><ul style="list-style: none; padding: 0; margin: 0;">' +
+        choices.map((label, i) => {
           const color = colorPalette[i % colorPalette.length];
-          const start = i * anglePer;
-          const end = start + anglePer;
-          return `${color} ${start}deg ${end}deg`;
-        }).join(', ');
-        wheel.style.background = `conic-gradient(${gradient})`;
-      };
+          return `<li style="display: flex; align-items: center; margin-bottom: 0.3rem;">
+                    <span style="background:${color};"></span> ${label}
+                  </li>`;
+        }).join('') +
+        '</ul>';
+    };
 
-      const renderLegend = () => {
-        const legend = document.getElementById('legend');
-        legend.innerHTML = '<h4>🎨 顏色對應表：</h4><ul style="list-style: none; padding: 0;">' +
-          choices.map((label, i) => {
-            const color = colorPalette[i % colorPalette.length];
-            return `<li style="display: flex; align-items: center; margin-bottom: 0.3rem;">
-                      <span style="background:${color};"></span> ${label}
-                    </li>`;
-          }).join('') +
-          '</ul>';
-      };
+    wheel.addEventListener('click', () => {
+      if (spinning) return;
+      spinning = true;
 
-      wheel.addEventListener('click', () => {
-        if (spinning) return;
-        spinning = true;
+      const currentRotation = wheel.style.transform ?
+        parseFloat(wheel.style.transform.replace(/[^\d.]/g, '')) : 0;
+      const anglePer = 360 / choices.length;
+      const randomSpins = 5 + Math.floor(Math.random() * 3); // 5-7 圈
+      const randomAngle = Math.random() * 360;
+      const totalAngle = currentRotation + (360 * randomSpins) + randomAngle;
 
-        const anglePerChoice = 360 / choices.length;
-        const randomIndex = Math.floor(Math.random() * choices.length);
-        const currentRotation = wheel.style.transform ?
-          parseFloat(wheel.style.transform.replace(/[^\d.]/g, '')) || 0 : 0;
-        const extraSpins = 360 * 5;
-        const targetAngle = anglePerChoice * randomIndex + anglePerChoice / 2;
-        const totalAngle = currentRotation + extraSpins + targetAngle;
+      wheel.style.transform = `rotate(${totalAngle}deg)`;
 
-        wheel.style.transform = `rotate(${totalAngle}deg)`;
+      setTimeout(() => {
+        const normalizedAngle = (360 - (totalAngle % 360)) % 360;
+        const selectedIndex = Math.floor(normalizedAngle / anglePer);
+        const selected = choices[selectedIndex];
 
-        setTimeout(() => {
-          const selected = choices[randomIndex];
-          result.textContent = `🎉 今天吃：${selected}`;
-          mapLink.href = `https://www.google.com/maps/search/${encodeURIComponent(selected)}`;
-          mapLink.textContent = `🔍 搜尋附近的 ${selected}`;
-          spinning = false;
-        }, 4000);
-      });
+        result.textContent = `🎉 今天吃：${selected}`;
+        mapLink.href = `https://www.google.com/maps/search/${encodeURIComponent(selected)}`;
+        mapLink.textContent = `🔍 搜尋附近的 ${selected}`;
+        spinning = false;
+      }, 4000);
+    });
 
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const input = document.getElementById('customChoices').value;
-        const newChoices = input.split(',').map(item => item.trim()).filter(item => item);
-        if (newChoices.length > 0) {
-          choices = newChoices;
-          renderWheel();
-          renderLegend();
-          alert('已更新選項！');
-        } else {
-          alert('請輸入至少一個選項');
-        }
-      });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('customChoices').value;
+      const newChoices = input.split(',').map(item => item.trim()).filter(item => item);
+      if (newChoices.length > 0) {
+        choices = newChoices;
+        renderWheel();
+        renderLegend();
+        alert('已更新選項！');
+      } else {
+        alert('請輸入至少一個選項');
+      }
+    });
 
-      renderWheel();
-      renderLegend();
-    </script>
-  </body>
+    renderWheel();
+    renderLegend();
+  </script>
+</body>
+
 </html>
