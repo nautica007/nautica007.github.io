@@ -6,27 +6,72 @@
     <title>今天吃什麼？輪盤決定！</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
     <style>
-      #wheel {
-        width: 300px;
-        height: 300px;
-        border: 10px solid #ccc;
-        border-radius: 50%;
+      .wheel-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
         margin: 2rem auto;
+        max-width: 100%;
+      }
+
+      #wheel {
+        width: clamp(500px, 40vw, 300px);
+        height: clamp(500px, 40vw, 300px);
+        border: 8px solid #ccc;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
         text-align: center;
-        background: conic-gradient(#f78ca0 0% 14.28%, #fbc7d4 14.28% 28.56%, #fceabb 28.56% 42.84%, #e0c3fc 42.84% 57.12%, #a1c4fd 57.12% 71.4%, #c2e9fb 71.4% 85.68%, #d4fc79 85.68% 100%);
+
         transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+        background: none;
       }
+
       #pointer {
         position: absolute;
-        top: 160px;
+        top: -2.3rem;
         left: 50%;
         transform: translateX(-50%);
         font-size: 2rem;
         color: red;
+      }
+
+      #legend {
+        position: absolute;
+        right: 0rem;
+        bottom: -3rem;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.1rem 0.5rem;
+        border-radius: 1.75rem;
+        box-shadow: 0 0 10px rgba(0,0,0,0.15);
+        font-size: 0.95rem;
+        max-width: 250px;
+        }
+
+      #legend span {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.5rem;
+        border-radius: 3px;
+        }
+      #legend h4 {
+        margin-bottom: 0.8rem; 
+        }
+
+
+      @media (max-width: 480px) {
+        #wheel {
+          font-size: 1rem;
+        }
+
+        #legend h4 {
+          font-size: 1rem;
+        }
       }
     </style>
   </head>
@@ -39,12 +84,16 @@
       <div class="grid">
         <section>
           <hgroup>
-            <h2>不知道今天要吃什麼？</h2>
+            <h1>今天要吃什麼勒？</h1>
             <h3>點一下幫你決定！</h3>
           </hgroup>
 
-          <div id="pointer">▼</div>
-          <div id="wheel">點我轉</div>
+          <!-- 包住轉盤 + 指針 -->
+          <div class="wheel-container">
+            <div id="pointer">▼</div>
+            <div id="wheel">點我轉</div>
+            <div id="legend"></div>
+          </div>
 
           <h3 id="result">👉 等待轉盤結果...</h3>
           <p><a id="mapLink" href="#" target="_blank">🔍 在 Google 地圖搜尋</a></p>
@@ -54,28 +103,59 @@
             <textarea id="customChoices" rows="4" placeholder="輸入選項，以逗號分隔，如：拉麵,壽司,炸雞" required></textarea>
             <button type="submit">更新選項</button>
           </form>
+
         </section>
       </div>
     </main>
 
     <script>
       let choices = ['拉麵', '義大利麵', '便當', '牛排', '火鍋', '水餃', '滷味'];
+      const colorPalette = [
+        '#f78ca0', '#fbc7d4', '#fceabb', '#e0c3fc', '#a1c4fd',
+        '#c2e9fb', '#d4fc79', '#ffb347', '#ff6961', '#87e0fd',
+        '#b0f2b4', '#d5aae5', '#f9f871', '#ffd3b6', '#d0e1f9'
+      ];
+
       const wheel = document.getElementById('wheel');
       const result = document.getElementById('result');
       const mapLink = document.getElementById('mapLink');
       const form = document.getElementById('customForm');
 
       let spinning = false;
+      
+      const renderWheel = () => {
+        const anglePer = 360 / choices.length;
+        const gradient = choices.map((_, i) => {
+          const color = colorPalette[i % colorPalette.length];
+          const start = i * anglePer;
+          const end = start + anglePer;
+          return `${color} ${start}deg ${end}deg`;
+        }).join(', ');
+        wheel.style.background = `conic-gradient(${gradient})`;
+      };
+
+      const renderLegend = () => {
+        const legend = document.getElementById('legend');
+        legend.innerHTML = '<h4>🎨 顏色對應表：</h4><ul style="list-style: none; padding: 0;">' +
+          choices.map((label, i) => {
+            const color = colorPalette[i % colorPalette.length];
+            return `<li style="display: flex; align-items: center; margin-bottom: 0.3rem;">
+                      <span style="background:${color};"></span> ${label}
+                    </li>`;
+          }).join('') +
+          '</ul>';
+      };
 
       wheel.addEventListener('click', () => {
         if (spinning) return;
         spinning = true;
 
+        const anglePerChoice = 360 / choices.length;
         const randomIndex = Math.floor(Math.random() * choices.length);
-        const currentRotation = wheel.style.transform ? 
+        const currentRotation = wheel.style.transform ?
           parseFloat(wheel.style.transform.replace(/[^\d.]/g, '')) || 0 : 0;
-        const extraSpins = 360 * 5; // 額外旋轉5圈
-        const targetAngle = (360 / choices.length) * randomIndex;
+        const extraSpins = 360 * 5;
+        const targetAngle = anglePerChoice * randomIndex + anglePerChoice / 2;
         const totalAngle = currentRotation + extraSpins + targetAngle;
 
         wheel.style.transform = `rotate(${totalAngle}deg)`;
@@ -95,11 +175,16 @@
         const newChoices = input.split(',').map(item => item.trim()).filter(item => item);
         if (newChoices.length > 0) {
           choices = newChoices;
+          renderWheel();
+          renderLegend();
           alert('已更新選項！');
         } else {
           alert('請輸入至少一個選項');
         }
       });
+
+      renderWheel();
+      renderLegend();
     </script>
   </body>
 </html>
