@@ -244,8 +244,40 @@ let choices = mealTypes[currentMealType];
         result.textContent = `🎉 今天吃：${selected}`;
         mapLink.href = `https://www.google.com/maps/search/${encodeURIComponent(selected)}`;
         mapLink.textContent = `🔍 搜尋附近的 ${selected}`;
+        
+        // 當點擊搜尋連結時儲存用餐紀錄
+        mapLink.addEventListener('click', () => {
+          const currentDate = new Date().toLocaleDateString('zh-TW');
+          const diningHistory = JSON.parse(localStorage.getItem('diningHistory') || '[]');
+          
+          // 確保不重複添加同一天同一個食物
+          const existingEntry = diningHistory.find(entry => 
+            entry.date === currentDate && 
+            entry.food === selected && 
+            entry.mealType === currentMealType
+          );
+          
+          if (!existingEntry) {
+            diningHistory.unshift({
+              food: selected,
+              date: currentDate,
+              mealType: currentMealType,
+              restaurant: '',
+              rating: null
+            });
+            localStorage.setItem('diningHistory', JSON.stringify(diningHistory));
+          }
+        });
+        
         spinning = false;
       }, 4000);
+    });
+
+    document.getElementById('mealTypeSelect').addEventListener('change', (e) => {
+      currentMealType = e.target.value;
+      choices = mealTypes[currentMealType];
+      renderWheel();
+      renderLegend();
     });
 
     form.addEventListener('submit', (e) => {
