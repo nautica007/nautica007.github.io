@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>用餐紀錄 - 今天吃什麼？</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+  <style>
+    body {
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      min-height: 100vh;
+    }
+    
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .history-day {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+    }
+    
+    .summary {
+      cursor: pointer;
+    }
+
+    .history-details {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+
+    .history-details.active {
+      display: block;
+    }
+
+    .meal-item {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-left: 3px solid #23a6d5;
+    }
+
+    .comment-input {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="container-fluid">
+    <ul>
+      <li><a href="index.html">← 返回轉盤</a></li>
+      <li><strong>📋 用餐紀錄</strong></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h1>用餐紀錄</h1>
+    <div id="history"></div>
+  </main>
+
+  <script>
+    const historyDiv = document.getElementById('history');
+    const diningHistory = JSON.parse(localStorage.getItem('diningHistory') || '[]');
+
+    // 按日期分組紀錄
+    const groupByDate = (records) => {
+      const groups = {};
+      records.forEach(record => {
+        if (!groups[record.date]) {
+          groups[record.date] = [];
+        }
+        groups[record.date].push(record);
+      });
+      return groups;
+    };
+
+    const updateHistoryDisplay = () => {
+      const groupedHistory = groupByDate(diningHistory);
+      
+      historyDiv.innerHTML = Object.entries(groupedHistory).length ? 
+        Object.entries(groupedHistory).map(([date, records]) => {
+          const restaurants = [...new Set(records.map(r => r.restaurant).filter(r => r))];
+          
+          return `
+            <article class="history-day">
+              <div class="summary" onclick="toggleDetails(this.parentElement)">
+              <div class="summary">
+                <h3>${date}</h3>
+                ${restaurants.length ? 
+                  `<p>🏪 餐廳：${restaurants.join('、')}</p>` : 
+                  '<p>尚未記錄餐廳</p>'}
+              </div>
+              <div class="history-details">
+                ${records.map((record, index) => `
+                  <div class="meal-item">
+                    <h4>${record.mealType} - ${record.food}</h4>
+                    ${record.restaurant ? `<p>🏪 餐廳：${record.restaurant}</p>` : ''}
+                    <div style="margin: 0.5rem 0">
+                      ${record.rating ? '⭐'.repeat(record.rating) : 
+                        `<select onchange="rateRecord('${date}', ${index}, this.value)">
+                          <option value="">評分</option>
+                          ${[1,2,3,4,5].map(n => `<option value="${n}">${n}分</option>`).join('')}
+                        </select>`
+                      }
+                    </div>
+                    <div class="comment-input">
+                      <input type="text" 
+                        placeholder="添加評語" 
+                        value="${record.comment || ''}"
+                        onchange="updateComment('${date}', ${index}, this.value)">
+                    </div>
+                    <div style="margin-top: 0.5rem">
+                      <button onclick="addRestaurant('${date}', ${index})" class="secondary outline" style="margin-right: 5px">
+                        ${record.restaurant ? '修改餐廳' : '新增餐廳'}
+                      </button>
+                      <button onclick="deleteRecord('${date}', ${index})" class="secondary outline">刪除</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </article>
+          `;
+        }).join('') : '<p>尚無紀錄</p>';
+    };
+
+    const toggleDetails = (element) => {
+      const details = element.querySelector('.history-details');
+      details.classList.toggle('active');
+    };
+
+    const rateRecord = (date, index, rating) => {
+      diningHistory[index].rating = parseInt(rating);
+      localStorage.setItem('diningHistory', JSON.stringify(diningHistory));
+      updateHistoryDisplay();
+    };
+
+    const updateComment = (date, index, comment) => {
+      diningHistory[index].comment = comment;
+      localStorage.setItem('diningHistory', JSON.stringify(diningHistory));
+    };
+
+    const deleteRecord = (date, index) => {
+      if (confirm('確定要刪除這筆紀錄嗎？')) {
+        diningHistory.splice(index, 1);
+        localStorage.setItem('diningHistory', JSON.stringify(diningHistory));
+        updateHistoryDisplay();
+      }
+    };
+
+    const addRestaurant = (date, index) => {
+      const restaurant = prompt('請輸入餐廳名稱：', diningHistory[index].restaurant || '');
+      if (restaurant !== null) {
+        diningHistory[index].restaurant = restaurant;
+        localStorage.setItem('diningHistory', JSON.stringify(diningHistory));
+        updateHistoryDisplay();
+      }
+    };
+
+    updateHistoryDisplay();
+  </script>
+</body>
+</html>
