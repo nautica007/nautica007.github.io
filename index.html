@@ -7,11 +7,24 @@
   <title>今天吃什麼？輪盤決定！</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
   <style>
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
     body {
-      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-      background-attachment: fixed;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
       min-height: 100vh;
       color: #2d3436;
+    }
+
+    .container {
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     .container {
