@@ -13,7 +13,7 @@
       animation: gradientBG 15s ease infinite;
       min-height: 100vh;
     }
-    
+
     @keyframes gradientBG {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -35,7 +35,7 @@
       margin-bottom: 1rem;
       border-radius: 8px;
     }
-    
+
     .summary {
       cursor: pointer;
     }
@@ -94,21 +94,20 @@
 
     const updateHistoryDisplay = () => {
       const groupedHistory = groupByDate(diningHistory);
-      
+
       historyDiv.innerHTML = Object.entries(groupedHistory).length ? 
         Object.entries(groupedHistory).map(([date, records]) => {
           const restaurants = [...new Set(records.map(r => r.restaurant).filter(r => r))];
-          
+
           return `
             <article class="history-day">
-              <div class="summary" onclick="toggleDetails(this.parentElement)">
-              <div class="summary">
+              <div class="summary" onclick="toggleDetails(this)">
                 <h3>${date}</h3>
                 ${restaurants.length ? 
                   `<p>🏪 餐廳：${restaurants.join('、')}</p>` : 
                   '<p>尚未記錄餐廳</p>'}
               </div>
-              <div class="history-details">
+              <div class="history-details" onclick="event.stopPropagation()">
                 ${records.map((record, index) => `
                   <div class="meal-item">
                     <h4>${record.mealType} - ${record.food}</h4>
@@ -141,8 +140,8 @@
         }).join('') : '<p>尚無紀錄</p>';
     };
 
-    const toggleDetails = (element) => {
-      const details = element.querySelector('.history-details');
+    const toggleDetails = (summaryElement) => {
+      const details = summaryElement.nextElementSibling;
       details.classList.toggle('active');
     };
 
