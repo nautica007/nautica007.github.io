@@ -162,6 +162,15 @@
         <h3 id="result">👉 等待轉盤結果...</h3>
         <p><a id="mapLink" href="#" target="_blank">🔍 在 Google 地圖搜尋</a></p>
 
+        <p><a href="history.html" role="button" class="outline">查看完整用餐紀錄 📋</a></p>
+
+        <h3>選擇用餐時段：</h3>
+      <select id="mealTypeSelect" style="margin-bottom: 1rem;">
+        <option value="早餐">早餐</option>
+        <option value="午餐" selected>午餐</option>
+        <option value="晚餐">晚餐</option>
+      </select>
+
         <h3>自訂你的餐點選項：</h3>
         <form id="customForm">
           <textarea id="customChoices" rows="4" placeholder="輸入選項，以逗號分隔，如：拉麵,壽司,炸雞" required></textarea>
@@ -172,7 +181,13 @@
   </main>
 
   <script>
-    let choices = ['拉麵', '義大利麵', '便當', '牛排', '火鍋', '水餃', '滷味'];
+    const mealTypes = {
+  早餐: ['飯糰', '三明治', '漢堡', '蛋餅', '麥當勞', '永和豆漿', '粥'],
+  午餐: ['拉麵', '義大利麵', '便當', '牛排', '火鍋', '水餃', '滷味'],
+  晚餐: ['燒烤', '炒飯', '披薩', '咖哩飯', '鍋燒麵', '丼飯', '炸物']
+};
+let currentMealType = '午餐';
+let choices = mealTypes[currentMealType];
     const colorPalette = [
       '#f78ca0', '#fbc7d4', '#fceabb', '#e0c3fc', '#a1c4fd',
       '#c2e9fb', '#d4fc79', '#ffb347', '#ff6961', '#87e0fd',
